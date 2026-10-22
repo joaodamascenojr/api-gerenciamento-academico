@@ -1,9 +1,11 @@
 from fastapi import FastAPI
 
-from app.routers import alunos
+from app.routers import alunos, disciplinas
 
 app = FastAPI(title="API de Gerenciamento Acadêmico")
+
 app.include_router(alunos.router)
+app.include_router(disciplinas.router)
 
 
 @app.get("/", tags=["Health"])

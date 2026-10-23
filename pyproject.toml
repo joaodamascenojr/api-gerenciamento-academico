@@ -1,0 +1,4 @@
+﻿[tool.ruff]
+line-length = 79
+src = ["src"]
+extend-exclude = ["alembic/versions"]

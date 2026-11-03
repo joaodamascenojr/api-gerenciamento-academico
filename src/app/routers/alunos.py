@@ -40,7 +40,8 @@ def buscar_aluno(aluno_id: int, db: DbSession):
 @router.patch("/{aluno_id}", response_model=AlunoRead)
 def atualizar_aluno(aluno_id: int, dados: AlunoUpdate, db: DbSession):
     aluno = get_aluno_or_404(aluno_id, db)
-    for campo, valor in dados.model_dump(exclude_unset=True).items():
+    campos = dados.model_dump(exclude_unset=True, exclude_none=True)
+    for campo, valor in campos.items():
         setattr(aluno, campo, valor)
     db.commit()
     db.refresh(aluno)

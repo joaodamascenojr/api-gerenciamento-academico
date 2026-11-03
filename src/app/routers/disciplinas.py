@@ -33,7 +33,7 @@ def get_disciplina_or_404(
     response_model=DisciplinaRead,
     status_code=status.HTTP_201_CREATED,
 )
-def create_disciplina(
+def criar_disciplina(
     disciplina: DisciplinaCreate,
     db: DbSession,
 ):
@@ -57,7 +57,7 @@ def create_disciplina(
 
 
 @router.get("/", response_model=list[DisciplinaRead])
-def read_disciplinas(
+def listar_disciplinas(
     db: DbSession,
     skip: int = 0,
     limit: int = 20,
@@ -68,7 +68,7 @@ def read_disciplinas(
 
 
 @router.get("/{disciplina_id}", response_model=DisciplinaRead)
-def read_disciplina(
+def buscar_disciplina(
     disciplina_id: int,
     db: DbSession,
 ):
@@ -76,7 +76,7 @@ def read_disciplina(
 
 
 @router.patch("/{disciplina_id}", response_model=DisciplinaRead)
-def update_disciplina(
+def atualizar_disciplina(
     disciplina_id: int,
     disciplina: DisciplinaUpdate,
     db: DbSession,
@@ -115,7 +115,7 @@ def update_disciplina(
     "/{disciplina_id}",
     status_code=status.HTTP_204_NO_CONTENT,
 )
-def delete_disciplina(
+def excluir_disciplina(
     disciplina_id: int,
     db: DbSession,
 ):

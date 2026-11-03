@@ -10,5 +10,5 @@ app.include_router(matriculas.router)
 
 
 @app.get("/", tags=["Health"])
-def read_root():
+def verificar_status():
     return {"message": "API de Gerenciamento Acadêmico funcionando!"}

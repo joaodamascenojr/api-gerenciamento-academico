@@ -2,6 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, HTTPException, Query, status
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.deps import DbSession
@@ -18,13 +19,24 @@ def get_aluno_or_404(aluno_id: int, db: Session) -> Aluno:
     return aluno
 
 
-@router.post("/", response_model=AlunoRead, status_code=201)
+@router.post(
+    "/",
+    response_model=AlunoRead,
+    status_code=status.HTTP_201_CREATED,
+)
 def criar_aluno(dados: AlunoCreate, db: DbSession):
     if db.scalar(select(Aluno).where(Aluno.email == dados.email)):
         raise HTTPException(status.HTTP_409_CONFLICT, "E-mail já cadastrado")
+
     aluno = Aluno(**dados.model_dump())
     db.add(aluno)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status.HTTP_409_CONFLICT, "E-mail já cadastrado"
+        ) from None
     db.refresh(aluno)
     return aluno
 
@@ -35,7 +47,9 @@ def listar_alunos(
     skip: Annotated[int, Query(ge=0)] = 0,
     limit: Annotated[int, Query(ge=1, le=100)] = 20,
 ):
-    return db.scalars(select(Aluno).offset(skip).limit(limit)).all()
+    return db.scalars(
+        select(Aluno).order_by(Aluno.id).offset(skip).limit(limit)
+    ).all()
 
 
 @router.get("/{aluno_id}", response_model=AlunoRead)
@@ -47,9 +61,29 @@ def buscar_aluno(aluno_id: int, db: DbSession):
 def atualizar_aluno(aluno_id: int, dados: AlunoUpdate, db: DbSession):
     aluno = get_aluno_or_404(aluno_id, db)
     campos = dados.model_dump(exclude_unset=True, exclude_none=True)
+
+    if "email" in campos:
+        email_existente = db.scalar(
+            select(Aluno).where(
+                Aluno.email == campos["email"],
+                Aluno.id != aluno_id,
+            )
+        )
+        if email_existente:
+            raise HTTPException(
+                status.HTTP_409_CONFLICT, "E-mail já cadastrado"
+            )
+
     for campo, valor in campos.items():
         setattr(aluno, campo, valor)
-    db.commit()
+
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status.HTTP_409_CONFLICT, "E-mail já cadastrado"
+        ) from None
     db.refresh(aluno)
     return aluno
 

@@ -1,4 +1,6 @@
-from fastapi import APIRouter, HTTPException, status
+from typing import Annotated
+
+from fastapi import APIRouter, HTTPException, Query, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -59,8 +61,8 @@ def criar_disciplina(
 @router.get("/", response_model=list[DisciplinaRead])
 def listar_disciplinas(
     db: DbSession,
-    skip: int = 0,
-    limit: int = 20,
+    skip: Annotated[int, Query(ge=0)] = 0,
+    limit: Annotated[int, Query(ge=1, le=100)] = 20,
 ):
     return db.scalars(
         select(Disciplina).order_by(Disciplina.id).offset(skip).limit(limit)

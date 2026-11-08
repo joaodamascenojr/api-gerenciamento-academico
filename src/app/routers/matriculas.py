@@ -1,4 +1,6 @@
-from fastapi import APIRouter, HTTPException, status
+from typing import Annotated
+
+from fastapi import APIRouter, HTTPException, Query, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -52,7 +54,11 @@ def criar_matricula(dados: MatriculaCreate, db: DbSession):
 
 
 @router.get("/", response_model=list[MatriculaRead])
-def listar_matriculas(db: DbSession, skip: int = 0, limit: int = 20):
+def listar_matriculas(
+    db: DbSession,
+    skip: Annotated[int, Query(ge=0)] = 0,
+    limit: Annotated[int, Query(ge=1, le=100)] = 20,
+):
     return db.scalars(
         select(Matricula).order_by(Matricula.id).offset(skip).limit(limit)
     ).all()

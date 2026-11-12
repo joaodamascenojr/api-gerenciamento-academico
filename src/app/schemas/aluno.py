@@ -7,12 +7,14 @@ class AlunoCreate(BaseModel):
     nome: str
     email: EmailStr
     data_nascimento: date | None = None
+    celular: str | None = None
 
 
 class AlunoUpdate(BaseModel):
     nome: str | None = None
     email: EmailStr | None = None
     data_nascimento: date | None = None
+    celular: str | None = None
 
 
 class AlunoRead(BaseModel):
@@ -22,3 +24,4 @@ class AlunoRead(BaseModel):
     nome: str
     email: EmailStr
     data_nascimento: date | None
+    celular: str | None

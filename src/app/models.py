@@ -13,6 +13,7 @@ class Aluno(Base):
     nome: Mapped[str] = mapped_column(index=True)
     email: Mapped[str] = mapped_column(unique=True)
     data_nascimento: Mapped[date | None]
+    celular: Mapped[str | None]
 
     matriculas: Mapped[list["Matricula"]] = relationship(
         back_populates="aluno", cascade="all, delete-orphan"
